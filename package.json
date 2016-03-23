@@ -1,0 +1,20 @@
+{
+  "name": "react-webpack-es6-starter",
+  "version": "0.0.0",
+  "description": "A starter project for React projects using Webpack and ES6",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "webpack",
+    "es6"
+  ],
+  "author": "Sam Warnick <sam.t.warnick@gmail.com> (http://samwarnick.com)",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7"
+  }
+}
