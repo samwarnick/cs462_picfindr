@@ -7,7 +7,7 @@ npm install
 
 # start webpack-dev-server
 npm start
-# open http://localhost:8080
+open http://localhost:8080
 
 # build with webpack
 npm build

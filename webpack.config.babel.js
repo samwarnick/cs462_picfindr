@@ -34,7 +34,19 @@ const common = {
         loaders: ['babel?cacheDirectory'],
         include: PATHS.app
       }
+    ],
+    preLoaders: [
+      {
+        test: /\.jsx?$/,
+        loaders: ['eslint'],
+        include: [new RegExp(PATHS.app)]
+      }
     ]
+  },
+
+  eslint: {
+    configFile: '.eslintrc',
+    emitError: true
   }
 };
 
