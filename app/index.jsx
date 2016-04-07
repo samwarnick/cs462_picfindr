@@ -1,5 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import HelloWorld from './components/HelloWorld/HelloWorld.jsx';
+import { Router, Route, browserHistory} from 'react-router';
 
-ReactDOM.render(<HelloWorld />, document.getElementById('root'));
+import App from './components/App.jsx';
+
+let routes =  (
+  <Router history={browserHistory}>
+    <Route path="/" component={App} />
+  </Router>
+);
+
+ReactDOM.render(routes, document.getElementById('root'));

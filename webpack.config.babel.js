@@ -12,13 +12,17 @@ const PATHS = {
 process.env.BABEL_ENV = TARGET;
 
 const common = {
-  entry: {
-    app: PATHS.app
-  },
+  plugins: [
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoErrorsPlugin()
+  ],
+  entry: ['webpack-hot-middleware/client', PATHS.app],
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
   output: {
+    publicPath: '/',
     path: PATHS.build,
     filename: 'bundle.js'
   },
@@ -31,7 +35,7 @@ const common = {
       },
       {
         test: /\.jsx?$/,
-        loaders: ['babel?cacheDirectory'],
+        loaders: ['babel'],
         include: PATHS.app
       }
     ],
