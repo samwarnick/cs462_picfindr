@@ -2,6 +2,8 @@ import webpack from 'webpack';
 import webpackMiddleware from 'webpack-dev-middleware';
 import config from './webpack.config.babel.js';
 import request from 'request';
+import bodyParser from 'body-parser';
+import fs from 'fs';
 var compiler = webpack(config);
 
 import express from 'express';
@@ -19,21 +21,25 @@ app.use(require("webpack-hot-middleware")(compiler));
 app.use(express.static('build'));
 
 app.post('/tag', function(req, res) {
+  console.log(req);
   fs.readFile(req.files.displayImage.path,  (err, data) => {
   // ...
   var newPath = __dirname + "/uploads/" + req.files.displayImage.name;
   fs.writeFile(newPath, data,(err) => {
-    request.post('https://api.clarifai.com/v1/tag/', {form:{'encoded_data': newPath}}, {headers: {Authorization: 'Bearer'+token}}, (err,httpResponse,body) => {
+    request.post('https://api.clarifai.com/v1/tag/', {form:{'encoded_data': newPath}, headers: {Authorization: 'Bearer'+token}}, (err,httpResponse,body) => {
       console.log('herein the thing');
       if (httpResponse.status_code === 'OK') {
-        var tags = httpResponse.results[0].result.tag.classes;
-        for (var tag in tags) {
+        var newtags = httpResponse.results[0].result.tag.classes;
+        for (var tag in newtags) {
           if (tags.tag !== undefined) {
             tags.tag.push(newPath);
           }
           else {
             tags.tag = [newPath];
           }
+        }
+        for (var peer in peers) {
+          request.post(peer + '/imageTagged', {body: {'tags': newtags}});
         }
         console.log(httpResponse);
         console.log(tags);
@@ -47,6 +53,13 @@ app.post('/tag', function(req, res) {
 app.get('/test',(req, res) => {
   console.log('got to test');
 });
+
+app.post('/imageTagged', (req, res) => {
+  for (var tag in req.body.tags) {
+
+  }
+});
+
 app.post('/addPeer', (req, res) => {
   console.log('adding peer');
   var peer_url = req.body.url;

@@ -14,7 +14,7 @@ export default class Navbar extends Component {
             </div>
             <div className="modal-body">
               <form action="/tag" method="post">
-                <input type="file" name="file" id="file" className="inputfile" accept="image/*" />
+                <input type="file" name="file" id="file" className="inputfile" accept="image/*" name="uploadImage" defaultValue="" />
                 <label forName="file">Choose an image</label>
                 <div className="modal-footer">
                   <button type="submit" className="btn btn-primary"><i className="fa fa-upload"></i></button>
