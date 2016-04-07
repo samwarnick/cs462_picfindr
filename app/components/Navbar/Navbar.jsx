@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import UploadModal from '../UploadModal/UploadModal.jsx';
+import AddPeerModal from '../AddPeerModal/AddPeerModal.jsx';
 
 export default class Navbar extends Component {
   render() {
@@ -9,6 +10,9 @@ export default class Navbar extends Component {
         <ul className="nav navbar-nav pull-xs-right">
           <li className="col-lg-3 nav-item">
             <button className="btn btn-primary" type="button" data-toggle="modal" data-target="#uploadModal"><i className="fa fa-upload"></i></button>
+          </li>
+          <li className="col-lg-3 nav-item">
+            <button className="btn btn-primary" type="button" data-toggle="modal" data-target="#peerModal"><i className="fa fa-plus"></i></button>
           </li>
         </ul>
         <div className="col-lg-3 pull-xs-right">
@@ -22,6 +26,7 @@ export default class Navbar extends Component {
 
         <UploadModal />
 
+        <AddPeerModal />
       </nav>
     );
   }

@@ -5,6 +5,8 @@ var compiler = webpack(config);
 
 import express from 'express';
 
+var peers = [];
+
 var app = express();
 
 app.use(require("webpack-dev-middleware")(compiler, {
@@ -13,8 +15,15 @@ app.use(require("webpack-dev-middleware")(compiler, {
 app.use(require("webpack-hot-middleware")(compiler));
 app.use(express.static('build'));
 
-app.get('/test', function(req, res) {
-  console.log('got to test');
+app.post('/addPeer', (req, res) => {
+  console.log('adding peer');
+  var peer_url = req.body.url;
+  peers.push(peer);
+  res.end();
+});
+
+app.post('/peerAdded', (req, res) => {
+
 });
 
 app.listen(8080);
