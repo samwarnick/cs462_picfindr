@@ -6,6 +6,7 @@ var compiler = webpack(config);
 import express from 'express';
 
 var app = express();
+var token = 'PLuoYVKO707urwc5TTKTNkR6j5SfFZ';
 
 app.use(require("webpack-dev-middleware")(compiler, {
     noInfo: true, publicPath: config.output.publicPath
