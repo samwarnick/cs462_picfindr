@@ -8,6 +8,7 @@ import express from 'express';
 
 var app = express();
 var token = 'PLuoYVKO707urwc5TTKTNkR6j5SfFZ';
+var tags = {};
 
 app.use(require("webpack-dev-middleware")(compiler, {
     noInfo: true, publicPath: config.output.publicPath
@@ -24,6 +25,14 @@ app.post('/tag', function(req, res) {
       console.log('herein the thing');
       if (httpResponse.status_code === 'OK') {
         var tags = httpResponse.results[0].result.tag.classes;
+        for (var tag in tags) {
+          if (tags.tag !== undefined) {
+            tags.tag.push(newPath);
+          }
+          else {
+            tags.tag = [newPath];
+          }
+        }
         console.log(httpResponse);
         console.log(tags);
       }
