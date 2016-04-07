@@ -6,6 +6,8 @@ var compiler = webpack(config);
 
 import express from 'express';
 
+var peers = [];
+
 var app = express();
 var token = 'PLuoYVKO707urwc5TTKTNkR6j5SfFZ';
 var tags = {};
@@ -44,6 +46,16 @@ app.post('/tag', function(req, res) {
 
 app.get('/test',(req, res) => {
   console.log('got to test');
+});
+app.post('/addPeer', (req, res) => {
+  console.log('adding peer');
+  var peer_url = req.body.url;
+  peers.push(peer);
+  res.end();
+});
+
+app.post('/peerAdded', (req, res) => {
+
 });
 
 app.listen(8080);
