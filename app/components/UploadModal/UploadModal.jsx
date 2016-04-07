@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-export default class Navbar extends Component {
+export default class UploadModal extends Component {
   render() {
     return (
       <div className="modal fade" id="uploadModal" tabIndex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -21,7 +21,6 @@ export default class Navbar extends Component {
                 </div>
               </form>
             </div>
-
           </div>
         </div>
       </div>
