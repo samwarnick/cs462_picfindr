@@ -38,13 +38,10 @@ app.use(express.static('build'));
 
 app.post('/tag', uploading.single('displayImage'), function(req, res) {
   var newPath = req.file.path;
-  console.log(req.file);
   fs.readFile(newPath, function(err, original_data){
     var base64Image = original_data.toString('base64');
     request.post('https://api.clarifai.com/v1/tag/', {'form':{'encoded_data': base64Image}, 'headers': {'Authorization': 'Bearer '+token}}, (err,httpResponse,bodystring) => {
       var body = JSON.parse(bodystring);
-      console.log('body', body);
-      console.log('code',body.results);
       if (body.status_code == 'OK') {
         var newtags = body.results[0].result.tag.classes;
         for (var tag of newtags) {
@@ -59,19 +56,10 @@ app.post('/tag', uploading.single('displayImage'), function(req, res) {
         for (var peer in peers) {
           request.post(peer + '/imageTagged', {body: {'tags': newtags}});
         }
-        // console.log(httpResponse);
-        console.log('tags: ',tags);
       }
     });
     res.status(200).send("OK");
 });
-
-
-
-});
-
-app.get('/test',(req, res) => {
-  console.log('got to test');
 });
 
 app.post('/imageTagged', (req, res) => {
@@ -96,10 +84,31 @@ app.post('/peerAdded', (req, res) => {
 
 app.post('/requestImage', (req, res) => {
   var tag = req.body.tag;
-  for (var peer in peers) {
-    request.post(peer + '/imageRequested', {body: {'tag': tag}});
+  for (var peer of peers) {
+    request.post(peer + '/imageRequested', {body: {'tag': tag, propnum: 2}});
   }
   res.status(200).send({status: 'OK'});
+});
+
+app.post('/imageRequested', (req,res) => {
+  if (tags[req.body.tag]) {
+    var rand = Math.random() * (tags[req.body.tag].length );
+    var pic = tags[req.body.tag][rand];
+    fs.readFile(pic, function(err, original_data){
+      request.post(req.hostname + '/imageFound', {body: {'image': original_data.toString()}});
+    });
+  }
+  else {
+    if (req.body.propnum !== 0) {
+      for (var peer of peers) {
+        request.post(peer + '/imageRequested', {body: {'tag': req.body.tag, propnum: req.body.propnum - 1}});
+      }
+    }
+  }
+});
+
+app.post('/imageFound', (req,res) => {
+  //sends either a URL or something
 });
 
 app.post('/test', (req, res) => {
