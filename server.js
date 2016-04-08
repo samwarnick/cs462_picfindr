@@ -36,13 +36,12 @@ app.use(express.static('build'));
 app.post('/tag', uploading.single('displayImage'), function(req, res) {
   console.log('file',req.file);
   var newPath = req.file.path;
-  request.post('https://api.clarifai.com/v1/token/', {'client_id': "pRH0rURL4ygLoq2egGvpqO9-f2DrCfAoum2QQJoi", 'client_secret': "X5pu0BEBKaVLTD_I9U4n1KAyu3rFVHRwk1H_rrFh", 'grant_type': "client_credentials"}, (err, httpResponse, body) => {
+  request.post('https://api.clarifai.com/v1/token/', {'form': {'client_id': "pRH0rURL4ygLoq2egGvpqO9-f2DrCfAoum2QQJoi", 'client_secret': "X5pu0BEBKaVLTD_I9U4n1KAyu3rFVHRwk1H_rrFh", 'grant_type': "client_credentials"}}, (err, httpResponse, body) => {
     console.log('err', err);
-    console.log('first response',httpResponse);
     console.log('first body',body);
   });
     request.post('https://api.clarifai.com/v1/tag/', {form:{'encoded_data': newPath}, headers: {Authorization: 'Bearer '+token}}, (err,httpResponse,body) => {
-      console.log(httpResponse);
+      // console.log(httpResponse);
       if (httpResponse.status_code === 'OK') {
         var newtags = httpResponse.results[0].result.tag.classes;
         for (var tag in newtags) {
@@ -56,8 +55,8 @@ app.post('/tag', uploading.single('displayImage'), function(req, res) {
         for (var peer in peers) {
           request.post(peer + '/imageTagged', {body: {'tags': newtags}});
         }
-        console.log(httpResponse);
-        console.log(tags);
+        // console.log(httpResponse);
+        // console.log(tags);
       }
     });
     res.status(200).send("OK");
