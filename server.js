@@ -36,9 +36,9 @@ app.use(require("webpack-dev-middleware")(compiler, {
 app.use(require("webpack-hot-middleware")(compiler));
 app.use(express.static('build'));
 
-app.post('/tag', uploading.single('displayImage'), function(req, res) {
+app.post('/tag', uploading.single('displayImage'),(req, res) => {
   var newPath = req.file.path;
-  fs.readFile(newPath, function(err, original_data){
+  fs.readFile(newPath, (err, original_data) => {
     var base64Image = original_data.toString('base64');
     request.post('https://api.clarifai.com/v1/tag/', {'form':{'encoded_data': base64Image}, 'headers': {'Authorization': 'Bearer '+token}}, (err,httpResponse,bodystring) => {
       var body = JSON.parse(bodystring);
@@ -53,8 +53,8 @@ app.post('/tag', uploading.single('displayImage'), function(req, res) {
           }
           knowntags.add(tag);
         }
-        for (var peer in peers) {
-          request.post(peer + '/imageTagged', {body: {'tags': newtags}});
+        for (var peer of peers) {
+          request.post(peer + '/imageTagged', {'form': {'tags': newtags}});
         }
       }
     });
@@ -63,7 +63,8 @@ app.post('/tag', uploading.single('displayImage'), function(req, res) {
 });
 
 app.post('/imageTagged', (req, res) => {
-  for (var tag of req.body.tags) {
+  var body = req.body;
+  for (var tag of body.tags) {
     knowntags.add(tag);
   }
 });
@@ -83,32 +84,42 @@ app.post('/peerAdded', (req, res) => {
 });
 
 app.post('/requestImage', (req, res) => {
-  var tag = req.body.tag;
+  console.log('I have sent the image request', req.body);
+  var reqbody = req.body;
+  var tag = reqbody.tag;
   for (var peer of peers) {
-    request.post(peer + '/imageRequested', {body: {'tag': tag, propnum: 2}});
+    request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2}});
   }
   res.status(200).send({status: 'OK'});
 });
 
 app.post('/imageRequested', (req,res) => {
-  if (tags[req.body.tag]) {
-    var rand = Math.random() * (tags[req.body.tag].length );
-    var pic = tags[req.body.tag][rand];
-    fs.readFile(pic, function(err, original_data){
-      request.post(req.hostname + '/imageFound', {body: {'image': original_data.toString()}});
+  var reqbody = req.body;
+  if (tags[reqbody.tag]) {
+    var rand = Math.random() * (tags[reqbody.tag].length - 1);
+    var pic = tags[reqbody.tag][rand];
+    console.log(pic);
+    fs.readFile(pic,(err, original_data) => {
+      request.post(req.hostname + '/imageFound', {'form': {'image': original_data.toString()}});
     });
   }
   else {
-    if (req.body.propnum !== 0) {
+    if (reqbody.propnum > 0) {
+      console.log('propnum', reqbody.propnum);
       for (var peer of peers) {
-        request.post(peer + '/imageRequested', {body: {'tag': req.body.tag, propnum: req.body.propnum - 1}});
+        var newpropnum = reqbody.propnum - 1;
+        request.post(peer + '/imageRequested', {'form': {'tag': reqbody.tag, 'propnum': newpropnum}});
       }
     }
   }
 });
 
 app.post('/imageFound', (req,res) => {
-  //sends either a URL or something
+  console.log('I just got an image found posting');
+  var reqbody = JSON.parse(req.body);
+  var image = reqbody.image;
+  //needs to find the correct socket
+  socket.emit('imageFound' , {'image': image});
 });
 
 app.post('/test', (req, res) => {
@@ -118,12 +129,12 @@ app.post('/test', (req, res) => {
   res.end();
 });
 
-io.on('connection', function (socket) {
+io.on('connection', (socket) => {
   sockets.push(socket);
-  socket.on('disconnect', function () {
+  socket.on('disconnect', () => {
     io.emit('frontend disconnected');
   });
   console.log('frontend is connected');
 });
 
-server.listen(8080);
+server.listen(8000);
