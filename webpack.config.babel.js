@@ -61,7 +61,6 @@ if(TARGET === 'start' || !TARGET) {
       contentBase: PATHS.build,
 
       historyApiFallback: true,
-      hot: true,
       inline: true,
       progress: true,
 
@@ -74,7 +73,6 @@ if(TARGET === 'start' || !TARGET) {
       port: process.env.PORT
     },
     plugins: [
-      new webpack.HotModuleReplacementPlugin(),
       new NpmInstallPlugin({
         save: true // --save
       })

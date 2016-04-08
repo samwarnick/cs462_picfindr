@@ -5,12 +5,14 @@ import request from 'request';
 import bodyParser from 'body-parser';
 import fs from 'fs';
 import multer from 'multer';
-import Clarifai from './clarifai_node.js';
 var compiler = webpack(config);
 
 import express from 'express';
+import http from 'http';
+import socketio from 'socket.io';
 
 var peers = [];
+var sockets = [];
 
 var app = express();
 var token = 'YsXUX8HJw0RXM5JkwWEfrT9yJCa6sh';
@@ -25,8 +27,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
 
-// Clarifai.initAPI("pRH0rURL4ygLoq2egGvpqO9-f2DrCfAoum2QQJoi","X5pu0BEBKaVLTD_I9U4n1KAyu3rFVHRwk1H_rrFh");
-// Clarifai._requestAccessToken();
+var server = http.Server(app);
+var io = socketio(server);
 
 app.use(require("webpack-dev-middleware")(compiler, {
     noInfo: true, publicPath: config.output.publicPath
@@ -79,14 +81,40 @@ app.post('/imageTagged', (req, res) => {
 });
 
 app.post('/addPeer', (req, res) => {
-  console.log('adding peer');
-  var peer_url = req.body.url;
-  peers.push(peer);
-  res.end();
+  console.log('adding peer', req.body.url);
+  var peer_url = 'http://' + req.body.url;
+  peers.push(peer_url);
+  res.status(200).send({status: 'OK'});
+  request.post(peer_url + '/peerAdded');
 });
 
 app.post('/peerAdded', (req, res) => {
-
+  var peer_url = req.protocol + '://' + req.get('host');
+  peers.push(peer_url);
+  res.status(200).send({status: 'OK'});
 });
 
-app.listen(8080);
+app.post('/requestImage', (req, res) => {
+  var tag = req.body.tag;
+  for (var peer in peers) {
+    request.post(peer + '/imageRequested', {body: {'tag': tag}});
+  }
+  res.status(200).send({status: 'OK'});
+});
+
+app.post('/test', (req, res) => {
+  for (var socket of sockets) {
+    socket.emit('test', {test: 'test'});
+  }
+  res.end();
+});
+
+io.on('connection', function (socket) {
+  sockets.push(socket);
+  socket.on('disconnect', function () {
+    io.emit('frontend disconnected');
+  });
+  console.log('frontend is connected');
+});
+
+server.listen(8080);
