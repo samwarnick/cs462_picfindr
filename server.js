@@ -56,6 +56,9 @@ app.post('/test', (req, res) => {
 
 io.on('connection', function (socket) {
   sockets.push(socket);
+  socket.on('disconnect', function () {
+    io.emit('frontend disconnected');
+  });
   console.log('frontend is connected');
 });
 
