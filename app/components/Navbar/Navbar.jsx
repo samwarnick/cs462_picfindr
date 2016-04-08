@@ -21,7 +21,7 @@ export default class Navbar extends Component {
       url: '/requestImage',
       dataType: 'json',
       type: 'POST',
-      data: {url: this.state.searchTag},
+      data: {tag: this.state.searchTag},
       success: () => {
         console.log('success');
       },
