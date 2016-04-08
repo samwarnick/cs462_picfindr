@@ -13,8 +13,8 @@ export default class UploadModal extends Component {
               <h4 className="modal-title" id="myModalLabel">Upload Image</h4>
             </div>
             <div className="modal-body">
-              <form action="/tag" method="post">
-                <input type="file" name="file" id="file" className="inputfile" accept="image/*" />
+              <form action="/tag" method="post" encType='multipart/form-data'>
+                <input type="file" name="displayImage" id="file" accept="image/*" />
                 <label forName="file">Choose an image</label>
                 <div className="modal-footer">
                   <button type="submit" className="btn btn-primary"><i className="fa fa-upload"></i></button>
