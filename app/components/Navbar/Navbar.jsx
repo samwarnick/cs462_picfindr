@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './Navbar.css';
 import UploadModal from '../UploadModal/UploadModal.jsx';
 import AddPeerModal from '../AddPeerModal/AddPeerModal.jsx';
 
@@ -49,8 +50,8 @@ export default class Navbar extends Component {
             <button className="btn btn-primary" type="button" data-toggle="modal" data-target="#peerModal"><i className="fa fa-plus"></i> <i className="fa fa-server"></i></button>
           </li>
         </ul>
-        <div className="col-lg-3 pull-xs-right">
-          <div className="input-group">
+        <div className="col-lg-3 pull-md-right" id="searchBar">
+          <div className="input-group pull-right">
             <input type="text" className="form-control" placeholder="Search..." onChange={this.handleSearchChange}/>
             <span className="input-group-btn">
               <SearchButton searching={this.state.searching} onClick={this.handleSearchClick}/>
