@@ -46,8 +46,10 @@
     "webpack-merge": "^0.7.3"
   },
   "dependencies": {
+    "multer": "^1.1.0",
     "react": "^0.14.6",
     "react-dom": "^0.14.6",
-    "react-router": "^2.0.1"
+    "react-router": "^2.0.1",
+    "stdio": "^0.2.7"
   }
 }
