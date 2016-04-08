@@ -14,6 +14,11 @@ var app = express();
 var token = 'PLuoYVKO707urwc5TTKTNkR6j5SfFZ';
 var tags = {};
 
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
+
 app.use(require("webpack-dev-middleware")(compiler, {
     noInfo: true, publicPath: config.output.publicPath
 }));
@@ -21,6 +26,8 @@ app.use(require("webpack-hot-middleware")(compiler));
 app.use(express.static('build'));
 
 app.post('/tag', function(req, res) {
+  console.log(req.body);
+  console.log(req.files);
   console.log(req);
   fs.readFile(req.files.displayImage.path,  (err, data) => {
   // ...
