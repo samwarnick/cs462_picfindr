@@ -7,11 +7,17 @@ import request from 'request';
 var compiler = webpack(config);
 
 import express from 'express';
+import http from 'http';
+import socketio from 'socket.io';
 
 var peers = [];
+var sockets = [];
 
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
+
+var server = http.Server(app);
+var io = socketio(server);
 
 app.use(require("webpack-dev-middleware")(compiler, {
     noInfo: true, publicPath: config.output.publicPath
@@ -41,4 +47,16 @@ app.post('/requestImage', (req, res) => {
   res.status(200).send({status: 'OK'});
 });
 
-app.listen(8080);
+app.post('/test', (req, res) => {
+  for (var socket of sockets) {
+    socket.emit('test', {test: 'test'});
+  }
+  res.end();
+});
+
+io.on('connection', function (socket) {
+  sockets.push(socket);
+  console.log('frontend is connected');
+});
+
+server.listen(8080);
