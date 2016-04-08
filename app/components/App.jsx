@@ -6,16 +6,12 @@ let socket = io('http://localhost:8080');
 export default class App extends Component {
   constructor(props) {
     super(props);
-
-    socket.on('test', (data) => {
-      console.log(data);
-    });
   }
 
   render() {
     return (
       <div>
-        <Navbar />
+        <Navbar socket={socket}/>
       </div>
     );
   }
