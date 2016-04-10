@@ -11,8 +11,13 @@ import express from 'express';
 import http from 'http';
 import socketio from 'socket.io';
 
+var port = 8080;
+if (process.argv[2]) {
+  port = parseInt(process.argv[2]);
+}
+
 var peers = [];
-var sockets = [];
+var clients = {};
 
 var app = express();
 var token = 'YsXUX8HJw0RXM5JkwWEfrT9yJCa6sh';
@@ -59,7 +64,7 @@ app.post('/tag', uploading.single('displayImage'),(req, res) => {
       }
     });
     res.status(200).send("OK");
-});
+  });
 });
 
 app.post('/imageTagged', (req, res) => {
@@ -67,6 +72,15 @@ app.post('/imageTagged', (req, res) => {
   for (var tag of body.tags) {
     knowntags.add(tag);
   }
+  for (let id of Object.keys(clients)) {
+    clients[id].emit('new tags', {tags: [...knowntags]});
+  }
+  res.end();
+});
+
+app.get('/tags', (req, res) => {
+  console.log("getting tags");
+  res.send({tags: [...knowntags]});
 });
 
 app.post('/addPeer', (req, res) => {
@@ -123,18 +137,19 @@ app.post('/imageFound', (req,res) => {
 });
 
 app.post('/test', (req, res) => {
-  for (var socket of sockets) {
-    socket.emit('test', {test: 'test'});
-  }
+  socket.emit('test', {test: 'test'});
   res.end();
 });
 
 io.on('connection', (socket) => {
-  sockets.push(socket);
+  clients[socket.id] = socket;
+  socket.emit("connected", {socketId: socket.id});
   socket.on('disconnect', () => {
-    io.emit('frontend disconnected');
+    console.log('frontend disconnected');
   });
-  console.log('frontend is connected');
+  console.log(socket.id, "connected");
 });
 
-server.listen(8000);
+server.listen(port, () => {
+  console.log('listening on port', port);
+});

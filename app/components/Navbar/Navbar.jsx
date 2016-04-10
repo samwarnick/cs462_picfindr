@@ -7,14 +7,14 @@ export default class Navbar extends Component {
 
   constructor(props) {
     super(props);
-    var socket = this.props.socket;
-    socket.on('test', (data) => {
-      this.setState({searching: false});
-      console.log(data);
-    });
-    this.state = {searchTag: '', searching: false};
+
+    this.state = {searchTag: '', searching: false, socket: this.props.socket,socket_id: this.props.socketId};
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleSearchClick = this.handleSearchClick.bind(this);
+
+    this.state.socket.on('imageFound', () => {
+      this.setState({searching: false});
+    });
   }
 
   handleSearchChange(event) {
@@ -27,9 +27,8 @@ export default class Navbar extends Component {
       url: '/requestImage',
       dataType: 'json',
       type: 'POST',
-      data: {tag: this.state.searchTag},
+      data: {tag: this.state.searchTag, socket_id: this.state.socket_id},
       success: () => {
-        console.log('success');
         this.setState({searching: true});
       },
       error: (xhr, status, err) => {
@@ -68,7 +67,8 @@ export default class Navbar extends Component {
 }
 
 Navbar.propTypes = {
-  socket: React.PropTypes.object.isRequired
+  socket: React.PropTypes.object.isRequired,
+  socketId: React.PropTypes.string.isRequired
 };
 
 class SearchButton extends Component {
