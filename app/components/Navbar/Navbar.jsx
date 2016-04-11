@@ -8,7 +8,7 @@ export default class Navbar extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {searchTag: '', searching: false, socket: this.props.socket, socket_id: this.props.socketId, tags: this.props.tags, filteredTags: []};
+    this.state = {searchTag: '', searching: false, socket: this.props.socket, socketId: this.props.socketId, tags: this.props.tags, filteredTags: []};
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleSearchClick = this.handleSearchClick.bind(this);
     this.handleSelection = this.handleSelection.bind(this);
@@ -47,7 +47,7 @@ export default class Navbar extends Component {
       url: '/requestImage',
       dataType: 'json',
       type: 'POST',
-      data: {tag: this.state.searchTag, socket_id: this.state.socket_id},
+      data: {tag: this.state.searchTag, socketId: this.state.socketId},
       success: () => {
         this.setState({searching: true});
       },
@@ -119,7 +119,7 @@ export default class Navbar extends Component {
           </div>
         </div>
 
-        <UploadModal />
+        <UploadModal socketId={this.state.socketId}/>
 
         <AddPeerModal />
       </nav>
