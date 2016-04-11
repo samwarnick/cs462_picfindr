@@ -60,6 +60,7 @@ export default class Navbar extends Component {
   handleSelection(tag) {
     this.setState({searchTag: tag});
     $('#search-input').val(tag);
+    this.filterList(tag);
   }
 
   handleEnterKey(event) {
