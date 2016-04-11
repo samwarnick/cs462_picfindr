@@ -10,7 +10,7 @@ export default class App extends Component {
     super(props);
 
     let socket = io('http://localhost:8080', {'force new connection': true});
-    this.state = {socket: socket, socket_id: '', tags: []};
+    this.state = {socket: socket, socketId: '', tags: []};
     this.state.socket.on('connected', (data) => {
       this.setState(data);
     });
@@ -22,7 +22,7 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        <Navbar socket={this.state.socket} socketId={this.state.socket_id} tags={this.state.tags}/>
+        <Navbar socket={this.state.socket} socketId={this.state.socketId} tags={this.state.tags}/>
         <TagList tags={this.state.tags}/>
         <ImageDisplay socket={this.state.socket} />
       </div>

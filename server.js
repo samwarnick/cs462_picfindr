@@ -27,7 +27,8 @@ var uploading = multer({
   dest: __dirname + '/uploads/',
 });
 
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser({limit: '50mb'}));
+app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
@@ -41,34 +42,43 @@ app.use(require("webpack-dev-middleware")(compiler, {
 app.use(require("webpack-hot-middleware")(compiler));
 app.use(express.static('build'));
 
-app.post('/tag', uploading.single('displayImage'),(req, res) => {
+app.post('/tag', uploading.single('displayImage'), (req, res) => {
   var newPath = req.file.path;
   fs.readFile(newPath, (err, original_data) => {
     var base64Image = original_data.toString('base64');
-    request.post('https://api.clarifai.com/v1/tag/', {'form':{'encoded_data': base64Image}, 'headers': {'Authorization': 'Bearer '+token}}, (err,httpResponse,bodystring) => {
-      var body = JSON.parse(bodystring);
-      if (body.status_code == 'OK') {
-        var newtags = body.results[0].result.tag.classes;
-        for (var tag of newtags) {
-          if (tags[tag] !== undefined) {
-            tags[tag].push(newPath);
-          }
-          else {
-            tags[tag] = [newPath];
-          }
-          knowntags.add(tag);
-        }
-        for (var peer of peers) {
-          request.post(peer + '/imageTagged', {'form': {'tags': newtags}});
-        }
-      }
-    });
-    res.status(200).send("OK");
+    request.post('https://api.clarifai.com/v1/token/', {'form': {'client_id': "pRH0rURL4ygLoq2egGvpqO9-f2DrCfAoum2QQJoi", 'client_secret': "X5pu0BEBKaVLTD_I9U4n1KAyu3rFVHRwk1H_rrFh", 'grant_type': "client_credentials"}}, (err, httpResponse, bodystring) => {
+          var body = JSON.parse(bodystring);
+          token = body.access_token;
+          request.post('https://api.clarifai.com/v1/tag/', {'form':{'encoded_data': base64Image}, 'headers': {'Authorization': 'Bearer '+token}}, (err,httpResponse,bodystring) => {
+            var body = JSON.parse(bodystring);
+            if (body.status_code == 'OK') {
+              var newtags = body.results[0].result.tag.classes;
+              for (var tag of newtags) {
+                if (tags[tag] !== undefined) {
+                  tags[tag].push(newPath);
+                }
+                else {
+                  tags[tag] = [newPath];
+                }
+                knowntags.add(tag);
+              }
+              clients[req.body.id].emit('new tags', {tags: [...knowntags]});
+              for (var peer of peers) {
+                request.post(peer + '/imageTagged', {'form': {'tags': newtags}});
+              }
+              res.status(200).send({status: 'OK'});
+            } else {
+              res.status(500).end();
+            }
+          });
+        });
   });
 });
 
 app.post('/imageTagged', (req, res) => {
+  console.log('someone added an image');
   var body = req.body;
+  console.log(body.tags);
   for (var tag of body.tags) {
     knowntags.add(tag);
   }
@@ -79,15 +89,15 @@ app.post('/imageTagged', (req, res) => {
 });
 
 app.post('/addPeer', (req, res) => {
-  console.log('adding peer', req.body.url);
+  var my_url = req.protocol + '://' + req.get('host');
   var peer_url = 'http://' + req.body.url;
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
-  request.post(peer_url + '/peerAdded');
+  request.post(peer_url + '/peerAdded', {'form': {'url': my_url}});
 });
 
 app.post('/peerAdded', (req, res) => {
-  var peer_url = req.protocol + '://' + req.get('host');
+  var peer_url = req.body.url;
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
 });
