@@ -23,6 +23,9 @@ export default class Navbar extends Component {
   handleSearchChange(event) {
     this.setState({searchTag: event.target.value});
     this.filterList(event.target.value);
+    if ($('#search-input').attr('aria-expanded') !== 'true') {
+      $('.dropdown-toggle').dropdown('toggle');
+    }
   }
 
   filterList(searchSoFar) {
