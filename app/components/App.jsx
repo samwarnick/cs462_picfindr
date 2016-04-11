@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Navbar from './Navbar/Navbar.jsx';
 import TagList from './TagList/TagList.jsx';
+import ImageDisplay from './ImageDisplay/ImageDisplay.jsx';
 import io from 'socket.io-client';
 
 export default class App extends Component {
@@ -23,6 +24,7 @@ export default class App extends Component {
       <div>
         <Navbar socket={this.state.socket} socketId={this.state.socket_id} tags={this.state.tags}/>
         <TagList tags={this.state.tags}/>
+        <ImageDisplay socket={this.state.socket} />
       </div>
     );
   }
