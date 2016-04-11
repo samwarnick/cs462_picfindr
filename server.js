@@ -90,6 +90,7 @@ app.post('/imageTagged', (req, res) => {
 app.post('/addPeer', (req, res) => {
   var my_url = req.protocol + '://' + req.get('host');
   var peer_url = 'http://' + req.body.url;
+  console.log('adding', peer_url);
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
   request.post(peer_url + '/peerAdded', {'form': {'url': my_url}});
@@ -97,6 +98,7 @@ app.post('/addPeer', (req, res) => {
 
 app.post('/peerAdded', (req, res) => {
   var peer_url = req.body.url;
+  console.log(peer_url, 'added me');
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
 });
@@ -105,9 +107,11 @@ app.post('/requestImage', (req, res) => {
   console.log('I have sent the image request', req.body);
   var reqbody = req.body;
   var peer_url = req.protocol + '://' + req.get('host');
+  console.log('my url', peer_url);
   var tag = reqbody.tag;
   var client_id = reqbody.socket_id;
   for (var peer of peers) {
+    console.log(peer);
     request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2, 'client_id' : client_id, 'requester': peer_url}});
   }
   res.status(200).send({status: 'OK'});

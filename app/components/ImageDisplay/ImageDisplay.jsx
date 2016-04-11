@@ -7,6 +7,7 @@ export default class ImageDisplay extends Component {
 
     this.state = {socket: this.props.socket};
     this.state.socket.on('imageFound', (data) => {
+      console.log('image found');
       var ctx = document.getElementById('canvas').getContext('2d');
       if (data.image) {
         var img = new Image();
