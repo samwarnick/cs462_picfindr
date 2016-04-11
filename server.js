@@ -113,7 +113,7 @@ app.post('/imageRequested', (req,res) => {
     var pic = tags[reqbody.tag][rand];
     console.log(pic);
     fs.readFile(pic,(err, original_data) => {
-      request.post(requester + '/imageFound', {'form': {'image': original_data, 'client_id' : client_id}});
+      request.post(requester + '/imageFound', {'form': {'image': true, 'buffer': original_data.toString('base64'), 'client_id' : client_id}});
     });
   }
   else {
