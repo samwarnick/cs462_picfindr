@@ -78,7 +78,6 @@ app.post('/tag', uploading.single('displayImage'), (req, res) => {
 app.post('/imageTagged', (req, res) => {
   console.log('someone added an image');
   var body = req.body;
-  console.log(body.tags);
   for (var tag of body.tags) {
     knowntags.add(tag);
   }
