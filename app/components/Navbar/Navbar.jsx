@@ -8,9 +8,11 @@ export default class Navbar extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {searchTag: '', searching: false, socket: this.props.socket,socket_id: this.props.socketId};
+    this.state = {searchTag: '', searching: false, socket: this.props.socket, socket_id: this.props.socketId, tags: this.props.tags, filteredTags: []};
     this.handleSearchChange = this.handleSearchChange.bind(this);
     this.handleSearchClick = this.handleSearchClick.bind(this);
+    this.handleSelection = this.handleSelection.bind(this);
+    this.filterList = this.filterList.bind(this);
 
     this.state.socket.on('imageFound', () => {
       this.setState({searching: false});
@@ -19,6 +21,19 @@ export default class Navbar extends Component {
 
   handleSearchChange(event) {
     this.setState({searchTag: event.target.value});
+    this.filterList(event.target.value);
+  }
+
+  filterList(searchSoFar) {
+    var list = [];
+    if (searchSoFar !== '') {
+      for (var tag of this.state.tags) {
+        if (tag.includes(searchSoFar)) {
+          list.push(tag);
+        }
+      }
+    }
+    this.setState({filteredTags: list});
   }
 
   handleSearchClick() {
@@ -37,7 +52,31 @@ export default class Navbar extends Component {
     });
   }
 
+  handleSelection(tag) {
+    this.setState({searchTag: tag});
+    $('#search-input').val(tag);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState(nextProps);
+  }
+
   render() {
+    var dropdown;
+    if (this.state.filteredTags.length === 0) {
+      dropdown = null;
+    } else {
+      var tags = this.state.filteredTags;
+      var tagNodes = tags.map((tag, index) => {
+        return (
+          <a className="dropdown-item" href="#" key={index} onClick={this.handleSelection.bind(this, tag)}>{tag}</a>
+        );
+      }, this);
+      dropdown = (<div className="dropdown-menu dropdown-menu-left">
+        {tagNodes}
+      </div>);
+    }
+
     return (
       <nav className="navbar navbar-light bg-faded">
         <a className="navbar-brand" href="#">Picfindr</a>
@@ -51,7 +90,8 @@ export default class Navbar extends Component {
         </ul>
         <div className="col-lg-3 pull-md-right" id="searchBar">
           <div className="input-group pull-right">
-            <input type="text" className="form-control" placeholder="Search..." onChange={this.handleSearchChange}/>
+            <input type="text" className="form-control dropdown-toggle" id="search-input" placeholder="Search..." onChange={this.handleSearchChange} autoComplete="off" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>
+            {dropdown}
             <span className="input-group-btn">
               <SearchButton searching={this.state.searching} onClick={this.handleSearchClick}/>
             </span>
@@ -68,7 +108,8 @@ export default class Navbar extends Component {
 
 Navbar.propTypes = {
   socket: React.PropTypes.object.isRequired,
-  socketId: React.PropTypes.string.isRequired
+  socketId: React.PropTypes.string.isRequired,
+  tags: React.PropTypes.array.isRequired
 };
 
 class SearchButton extends Component {

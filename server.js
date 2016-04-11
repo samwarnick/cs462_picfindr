@@ -78,11 +78,6 @@ app.post('/imageTagged', (req, res) => {
   res.end();
 });
 
-app.get('/tags', (req, res) => {
-  console.log("getting tags");
-  res.send({tags: [...knowntags]});
-});
-
 app.post('/addPeer', (req, res) => {
   console.log('adding peer', req.body.url);
   var peer_url = 'http://' + req.body.url;
@@ -143,7 +138,7 @@ app.post('/test', (req, res) => {
 
 io.on('connection', (socket) => {
   clients[socket.id] = socket;
-  socket.emit("connected", {socketId: socket.id});
+  socket.emit("connected", {socketId: socket.id, tags: [...knowntags]});
   socket.on('disconnect', () => {
     console.log('frontend disconnected');
   });

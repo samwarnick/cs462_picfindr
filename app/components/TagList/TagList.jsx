@@ -1,47 +1,38 @@
 import React, { Component } from 'react';
+import './TagList.css';
 
 export default class TagList extends Component {
 
   constructor(props) {
     super(props);
 
-    this.state = {socket: this.props.socket, tags: []};
-    this.state.socket.on('new tags', data => {
-      this.setState(data);
-    });
-    $.ajax({
-      url: '/tags',
-      dataType: 'json',
-      type: 'GET',
-      success: (data) => {
-        console.log(data);
-        this.setState(data);
-      },
-      error: (xhr, status, err) => {
-        console.error(status, err.toString());
-      }
-    });
+    this.state = {tags: this.props.tags};
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState(nextProps);
   }
 
   render() {
 
-    var tagNodes = this.state.tags.map((tag) => {
+    var tagNodes = this.state.tags.map((tag, index) => {
       return (
-        <li>{tag}</li>
+        <span className="label label-default" key={index}>{tag}</span>
       );
     });
 
     return (
-      <div>
-        <h2>Available Images</h2>
-        <ul>
-          {tagNodes}
-        </ul>
+      <div className="col-md-4 col-md-offset-4" id="available-container">
+        <div className="card text-xs-center">
+          <h2 className="card-header">Available Images</h2>
+          <h5>{tagNodes}</h5>
+        </div>
       </div>
+
     );
   }
 }
 
 TagList.propTypes = {
-  socket: React.PropTypes.object.isRequired
+  tags: React.PropTypes.array
 };
