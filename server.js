@@ -95,21 +95,25 @@ app.post('/peerAdded', (req, res) => {
 app.post('/requestImage', (req, res) => {
   console.log('I have sent the image request', req.body);
   var reqbody = req.body;
+  var peer_url = req.protocol + '://' + req.get('host');
   var tag = reqbody.tag;
+  var client_id = reqbody.socket_id;
   for (var peer of peers) {
-    request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2}});
+    request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2, 'client_id' : client_id, 'requester': peer_url}});
   }
   res.status(200).send({status: 'OK'});
 });
 
 app.post('/imageRequested', (req,res) => {
   var reqbody = req.body;
+  var requester = reqbody.requester;
+  var client_id = reqbody.socket_id;
   if (tags[reqbody.tag]) {
     var rand = Math.random() * (tags[reqbody.tag].length - 1);
     var pic = tags[reqbody.tag][rand];
     console.log(pic);
     fs.readFile(pic,(err, original_data) => {
-      request.post(req.hostname + '/imageFound', {'form': {'image': original_data.toString()}});
+      request.post(requester + '/imageFound', {'form': {'image': original_data, 'client_id' : client_id}});
     });
   }
   else {
@@ -117,7 +121,7 @@ app.post('/imageRequested', (req,res) => {
       console.log('propnum', reqbody.propnum);
       for (var peer of peers) {
         var newpropnum = reqbody.propnum - 1;
-        request.post(peer + '/imageRequested', {'form': {'tag': reqbody.tag, 'propnum': newpropnum}});
+        request.post(peer + '/imageRequested', {'form': {'tag': reqbody.tag, 'propnum': newpropnum, 'client_id' : client_id, 'requester': requester}});
       }
     }
   }
@@ -127,7 +131,8 @@ app.post('/imageFound', (req,res) => {
   console.log('I just got an image found posting');
   var reqbody = JSON.parse(req.body);
   var image = reqbody.image;
-  //needs to find the correct socket
+  var client_id = reqbody.socket_id;
+  var socket = clients[client_id];
   socket.emit('imageFound' , {'image': image});
 });
 
