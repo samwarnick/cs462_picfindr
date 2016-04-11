@@ -42,27 +42,34 @@ app.use(require("webpack-hot-middleware")(compiler));
 app.use(express.static('build'));
 
 app.post('/tag', uploading.single('displayImage'),(req, res) => {
+
   var newPath = req.file.path;
   fs.readFile(newPath, (err, original_data) => {
     var base64Image = original_data.toString('base64');
-    request.post('https://api.clarifai.com/v1/tag/', {'form':{'encoded_data': base64Image}, 'headers': {'Authorization': 'Bearer '+token}}, (err,httpResponse,bodystring) => {
+    request.post('https://api.clarifai.com/v1/token/', {'form': {'client_id': "pRH0rURL4ygLoq2egGvpqO9-f2DrCfAoum2QQJoi", 'client_secret': "X5pu0BEBKaVLTD_I9U4n1KAyu3rFVHRwk1H_rrFh", 'grant_type': "client_credentials"}}, (err, httpResponse, bodystring) => {
       var body = JSON.parse(bodystring);
-      if (body.status_code == 'OK') {
-        var newtags = body.results[0].result.tag.classes;
-        for (var tag of newtags) {
-          if (tags[tag] !== undefined) {
-            tags[tag].push(newPath);
+        token = body.access_token;
+        request.post('https://api.clarifai.com/v1/tag/', {'form':{'encoded_data': base64Image}, 'headers': {'Authorization': 'Bearer '+token}}, (err,httpResponse,bodystring) => {
+          var body = JSON.parse(bodystring);
+          if (body.status_code == 'OK') {
+            var newtags = body.results[0].result.tag.classes;
+            for (var tag of newtags) {
+              if (tags[tag] !== undefined) {
+                tags[tag].push(newPath);
+              }
+              else {
+                tags[tag] = [newPath];
+              }
+              knowntags.add(tag);
+            }
+            for (var peer of peers) {
+              request.post(peer + '/imageTagged', {'form': {'tags': newtags}});
+            }
           }
-          else {
-            tags[tag] = [newPath];
-          }
-          knowntags.add(tag);
-        }
-        for (var peer of peers) {
-          request.post(peer + '/imageTagged', {'form': {'tags': newtags}});
-        }
-      }
-    });
+          console.log(tags);
+        });
+     });
+
     res.status(200).send("OK");
   });
 });
