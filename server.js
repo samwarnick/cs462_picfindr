@@ -88,15 +88,14 @@ app.post('/imageTagged', (req, res) => {
 });
 
 app.post('/addPeer', (req, res) => {
-  var my_url = req.protocol + '://' + req.get('host');
   var peer_url = 'http://' + req.body.url;
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
-  request.post(peer_url + '/peerAdded', {'form': {'url': my_url}});
+  request.post(peer_url + '/peerAdded');
 });
 
 app.post('/peerAdded', (req, res) => {
-  var peer_url = req.body.url;
+  var peer_url = req.protocol + '://' + req.get('host');
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
 });
@@ -114,6 +113,7 @@ app.post('/requestImage', (req, res) => {
 });
 
 app.post('/imageRequested', (req,res) => {
+  console.log('I got an imageRequested');
   var reqbody = req.body;
   var requester = reqbody.requester;
   var client_id = reqbody.socket_id;
