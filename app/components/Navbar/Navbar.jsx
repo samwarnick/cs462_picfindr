@@ -13,6 +13,7 @@ export default class Navbar extends Component {
     this.handleSearchClick = this.handleSearchClick.bind(this);
     this.handleSelection = this.handleSelection.bind(this);
     this.filterList = this.filterList.bind(this);
+    this.handleEnterKey = this.handleEnterKey.bind(this);
 
     this.state.socket.on('imageFound', () => {
       this.setState({searching: false});
@@ -37,6 +38,7 @@ export default class Navbar extends Component {
   }
 
   handleSearchClick() {
+    $('.dropdown-toggle').dropdown('toggle');
     event.preventDefault();
     $.ajax({
       url: '/requestImage',
@@ -57,6 +59,15 @@ export default class Navbar extends Component {
     $('#search-input').val(tag);
   }
 
+  handleEnterKey(event) {
+    if (event.key === 'Enter' && this.state.filteredTags.length > 0) {
+      var tag = this.state.filteredTags[0];
+      this.setState({searchTag: tag});
+      $('#search-input').val(tag);
+      this.handleSearchClick();
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState(nextProps);
   }
@@ -68,8 +79,14 @@ export default class Navbar extends Component {
     } else {
       var tags = this.state.filteredTags;
       var tagNodes = tags.map((tag, index) => {
+        var searchSoFar = this.state.searchTag;
+        var i = tag.indexOf(searchSoFar);
+        var l = searchSoFar.length;
+        var start = tag.substr(0, i);
+        var sub = tag.substring(i, i+l);
+        var remaining = tag.slice(i+l);
         return (
-          <a className="dropdown-item" href="#" key={index} onClick={this.handleSelection.bind(this, tag)}>{tag}</a>
+          <a className="dropdown-item" href="#" key={index} onClick={this.handleSelection.bind(this, tag)}>{start}<b><u>{sub}</u></b>{remaining}</a>
         );
       }, this);
       dropdown = (<div className="dropdown-menu dropdown-menu-left">
@@ -90,7 +107,7 @@ export default class Navbar extends Component {
         </ul>
         <div className="col-lg-3 pull-md-right" id="searchBar">
           <div className="input-group pull-right">
-            <input type="text" className="form-control dropdown-toggle" id="search-input" placeholder="Search..." onChange={this.handleSearchChange} autoComplete="off" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>
+            <input type="text" className="form-control dropdown-toggle" id="search-input" placeholder="Search..." onChange={this.handleSearchChange} onKeyPress = {this.handleEnterKey} autoComplete="off" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"/>
             {dropdown}
             <span className="input-group-btn">
               <SearchButton searching={this.state.searching} onClick={this.handleSearchClick}/>
