@@ -146,11 +146,11 @@ app.post('/imageRequested', (req,res) => {
 
 app.post('/imageFound', (req,res) => {
   console.log('I just got an image found posting');
-  var reqbody = JSON.parse(req.body);
-  var image = reqbody.image;
-  var client_id = reqbody.socket_id;
+  var reqbody = req.body;
+  var image = reqbody.buffer;
+  var client_id = reqbody.client_id;
   var socket = clients[client_id];
-  socket.emit('imageFound' , { image: true, buffer: image.toString('base64') });
+  socket.emit('imageFound' , { image: true, buffer: image });
 });
 
 app.post('/test', (req, res) => {
