@@ -131,12 +131,11 @@ app.post('/peerAdded', (req, res) => {
 app.post('/requestImage', (req, res) => {
   console.log('I have sent the image request');
   var reqbody = req.body;
-  var peer_url = req.protocol + '://' + req.get('host');
   var tag = reqbody.tag;
   var client_id = reqbody.socketId;
-  if (tags[tag] === null) {
+  if (tags[tag] === undefined) {
     for (var peer of peers) {
-      request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2, 'client_id' : client_id, 'requester': peer_url}});
+      request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2, 'client_id' : client_id, 'requester': me}});
     }
   } else {
     var rand = Math.floor(Math.random() * (tags[tag].length-1));
