@@ -124,9 +124,9 @@ app.post('/requestImage', (req, res) => {
 app.post('/imageRequested', (req,res) => {
   console.log('I got an imageRequested');
   var reqbody = req.body;
-  var requester = reqbody.requester;
+  var requester = req.protocol + '://' + req.get('host');
   var client_id = reqbody.socket_id;
-  if (tags[reqbody.tag]) {
+  if (tags[reqbody.tag] !== null) {
     var rand = Math.floor(Math.random() * (tags[reqbody.tag].length - 1));
     var pic = tags[reqbody.tag][rand];
     fs.readFile(pic,(err, original_data) => {
