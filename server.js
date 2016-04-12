@@ -27,11 +27,9 @@ Object.keys(ifaces).forEach(function (ifname) {
 
     if (alias >= 1) {
       // this single interface has multiple ipv4 addresses
-      console.log(ifname + ':' + alias, iface.address);
     } else {
       // this interface has only one ipv4 adress
-      me = iface.address + ":8080";
-      console.log(iface.address);
+      me = 'http://' + iface.address + ":8080";
     }
     ++alias;
   });
