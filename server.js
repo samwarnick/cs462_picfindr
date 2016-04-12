@@ -11,6 +11,32 @@ import express from 'express';
 import http from 'http';
 import socketio from 'socket.io';
 
+import os from'os';
+var ifaces = os.networkInterfaces();
+
+var me;
+
+Object.keys(ifaces).forEach(function (ifname) {
+  var alias = 0;
+
+  ifaces[ifname].forEach(function (iface) {
+    if ('IPv4' !== iface.family || iface.internal !== false) {
+      // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+      return;
+    }
+
+    if (alias >= 1) {
+      // this single interface has multiple ipv4 addresses
+      console.log(ifname + ':' + alias, iface.address);
+    } else {
+      // this interface has only one ipv4 adress
+      me = iface.address + ":8080";
+      console.log(iface.address);
+    }
+    ++alias;
+  });
+});
+
 var port = 8080;
 if (process.argv[2]) {
   port = parseInt(process.argv[2]);
@@ -89,13 +115,14 @@ app.post('/imageTagged', (req, res) => {
 
 app.post('/addPeer', (req, res) => {
   var peer_url = 'http://' + req.body.url;
+  console.log(peer_url);
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
-  request.post(peer_url + '/peerAdded');
+  request.post(peer_url + '/peerAdded', {'form': {'url': me}});
 });
 
 app.post('/peerAdded', (req, res) => {
-  var peer_url = req.protocol + '://' + req.get('host');
+  var peer_url = req.body.url;
   console.log(peer_url);
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
