@@ -96,18 +96,27 @@ app.post('/addPeer', (req, res) => {
 
 app.post('/peerAdded', (req, res) => {
   var peer_url = req.protocol + '://' + req.get('host');
+  console.log(peer_url);
   peers.push(peer_url);
   res.status(200).send({status: 'OK'});
 });
 
 app.post('/requestImage', (req, res) => {
-  console.log('I have sent the image request', req.body);
+  console.log('I have sent the image request');
   var reqbody = req.body;
   var peer_url = req.protocol + '://' + req.get('host');
   var tag = reqbody.tag;
-  var client_id = reqbody.socket_id;
-  for (var peer of peers) {
-    request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2, 'client_id' : client_id, 'requester': peer_url}});
+  var client_id = reqbody.socketId;
+  if (tags[tag] === null) {
+    for (var peer of peers) {
+      request.post(peer + '/imageRequested', {'form': {'tag': tag, 'propnum': 2, 'client_id' : client_id, 'requester': peer_url}});
+    }
+  } else {
+    var rand = Math.floor(Math.random() * (tags[tag].length-1));
+    var pic = tags[tag][rand];
+    fs.readFile(pic,(err, original_data) => {
+      clients[client_id].emit('imageFound' , { image: true, buffer: original_data.toString('base64') });
+    });
   }
   res.status(200).send({status: 'OK'});
 });
@@ -118,9 +127,8 @@ app.post('/imageRequested', (req,res) => {
   var requester = reqbody.requester;
   var client_id = reqbody.socket_id;
   if (tags[reqbody.tag]) {
-    var rand = Math.random() * (tags[reqbody.tag].length - 1);
+    var rand = Math.floor(Math.random() * (tags[reqbody.tag].length - 1));
     var pic = tags[reqbody.tag][rand];
-    console.log(pic);
     fs.readFile(pic,(err, original_data) => {
       request.post(requester + '/imageFound', {'form': {'image': true, 'buffer': original_data.toString('base64'), 'client_id' : client_id}});
     });
@@ -142,7 +150,7 @@ app.post('/imageFound', (req,res) => {
   var image = reqbody.image;
   var client_id = reqbody.socket_id;
   var socket = clients[client_id];
-  socket.emit('imageFound' , {'image': image});
+  socket.emit('imageFound' , { image: true, buffer: image.toString('base64') });
 });
 
 app.post('/test', (req, res) => {

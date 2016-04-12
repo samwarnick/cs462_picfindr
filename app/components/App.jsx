@@ -23,8 +23,13 @@ export default class App extends Component {
     return (
       <div>
         <Navbar socket={this.state.socket} socketId={this.state.socketId} tags={this.state.tags}/>
-        <TagList tags={this.state.tags}/>
-        <ImageDisplay socket={this.state.socket} />
+        <div className="row">
+          <TagList tags={this.state.tags}/>
+        </div>
+        <div className="row">
+          <ImageDisplay socket={this.state.socket} />
+        </div>
+
       </div>
     );
   }

@@ -7,10 +7,13 @@ export default class ImageDisplay extends Component {
 
     this.state = {socket: this.props.socket};
     this.state.socket.on('imageFound', (data) => {
-      var ctx = document.getElementById('canvas').getContext('2d');
+      var canvas = document.getElementById('canvas');
+      var ctx = canvas.getContext('2d');
       if (data.image) {
         var img = new Image();
         img.src = 'data:image/jpeg;base64,' + data.buffer;
+        canvas.height = img.height;
+        canvas.width = img.width;
         ctx.drawImage(img, 0, 0);
       }
     });
@@ -22,10 +25,7 @@ export default class ImageDisplay extends Component {
 
   render() {
     return (
-      <div className="col-md-4 col-md-offset-4" id="available-container">
-        <canvas id="canvas"></canvas>
-      </div>
-
+      <canvas id="canvas"></canvas>
     );
   }
 }
