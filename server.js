@@ -148,7 +148,7 @@ app.post('/requestImage', (req, res) => {
 app.post('/imageRequested', (req,res) => {
   console.log('I got an imageRequested');
   var reqbody = req.body;
-  var requester = req.protocol + '://' + req.get('host');
+  var requester = req.body.requester;
   var client_id = reqbody.socket_id;
   if (tags[reqbody.tag] !== null) {
     var rand = Math.floor(Math.random() * (tags[reqbody.tag].length - 1));
