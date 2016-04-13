@@ -127,7 +127,6 @@ app.post('/peerAdded', (req, res) => {
 });
 
 app.post('/requestImage', (req, res) => {
-  console.log('I have sent the image request');
   var reqbody = req.body;
   var tag = reqbody.tag;
   var client_id = reqbody.socketId;
